@@ -8,7 +8,7 @@
     {
       "matches": ["<all_urls>"],
       "css": ["jquery.highlight-within-textarea.css"],
-      "js": ["jquery-3.3.1.js", "md5.js", "jquery.highlight-within-textarea.js", "contentScript.js"]
+      "js": ["jquery-3.3.1.js", "md5.js", "contentScript.js"]
     }
   ]
 }
