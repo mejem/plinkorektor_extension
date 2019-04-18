@@ -16,10 +16,10 @@ $("textarea").on("input", function () {
   var lines = $(this).val().split("\n");
   for (let line of lines) {
     var hash = hex_md5(line);
-    var $lineWithSameHash = $highlights.find("span[data-pk-hash='" + hash + "']:first");
-    if ($lineWithSameHash.length) {
+    var $lineWithSameHash = $highlights.find("span[data-pk-hash='" + hash + "']");
+    if ($lineWithSameHash.length == 1) {
       // let html = $lineWithSameHash.prop("outerHTML");
-      lineSpans.push($lineWithSameHash.clone());
+      lineSpans.push($lineWithSameHash);
     } else {
       var $lineSpan = $(document.createElement("span"));
       $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
@@ -45,7 +45,7 @@ $("textarea").on("input", function () {
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
-      console.log($lineOfText);
+      // console.log($lineOfText);
     }
   }, 2000);
 }
