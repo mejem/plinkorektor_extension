@@ -12,22 +12,22 @@ $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 
 $("textarea").on("input", function () {
   // var $textarea = $(this);
-  console.log("===");
+  // console.log("===");
   var $highlights = $(this).parent().find(".hwt-highlights");
   var lineSpans = [];
   var lines = $(this).val().split("\n");
   for (let line of lines) {
     var hash = hex_md5(line);
     var $idAlreadyExists = $highlights.find("span[data-pk-hash='" + hash + "']:first");
-    // let $spanId = $("#" + hash);
     if ($idAlreadyExists.length) {
-      console.log(hash, "exists", $idAlreadyExists.html());
-      lineSpans.push($idAlreadyExists.html());
+      let html = $idAlreadyExists.prop("outerHTML");
+      // console.log(hash, "exists", html);
+      lineSpans.push(html);
     } else {
       var lineSpan = document.createElement("span");
       $(lineSpan).attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
       lineSpans.push(lineSpan);
-      console.log(hash, "changed", $(lineSpan).html());
+      // console.log(hash, "changed", $(lineSpan).html());
     }
   }
   $highlights.empty();
