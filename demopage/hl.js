@@ -12,23 +12,22 @@ $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 
 $("textarea").on("input", function () {
   // var $textarea = $(this);
-
+  console.log("===");
   var $highlights = $(this).parent().find(".hwt-highlights");
   var lineSpans = [];
   var lines = $(this).val().split("\n");
   for (let line of lines) {
     var hash = hex_md5(line);
-    let $spanId = $("#" + hash);
-    if ($spanId.length) {
-      console.log($spanId.text().length);
-      // console.log(hash, "exists");
-      lineSpans.push($spanId);
+    var $idAlreadyExists = $highlights.find("span[data-pk-hash='" + hash + "']:first");
+    // let $spanId = $("#" + hash);
+    if ($idAlreadyExists.length) {
+      console.log(hash, "exists", $idAlreadyExists.html());
+      lineSpans.push($idAlreadyExists.html());
     } else {
-      // console.log(hash, "changed");
       var lineSpan = document.createElement("span");
-      // $(lineSpan).prop("id", hash).text(line).addClass("pk-line");
-      $(lineSpan).prop("id", hash).html("<mark>" + line + "\n" + "</mark>").addClass("pk-line");
+      $(lineSpan).attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
       lineSpans.push(lineSpan);
+      console.log(hash, "changed", $(lineSpan).html());
     }
   }
   $highlights.empty();
