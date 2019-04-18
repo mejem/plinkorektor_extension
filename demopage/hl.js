@@ -11,89 +11,53 @@ $(".hwt-container").prepend("<div class='hwt-backdrop'></div>");
 $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 
 $("textarea").on("input", function () {
-  // var $textarea = $(this);
-  // console.log("===");
   var $highlights = $(this).parent().find(".hwt-highlights");
   var lineSpans = [];
   var lines = $(this).val().split("\n");
   for (let line of lines) {
     var hash = hex_md5(line);
-    var $idAlreadyExists = $highlights.find("span[data-pk-hash='" + hash + "']:first");
-    if ($idAlreadyExists.length) {
-      let html = $idAlreadyExists.prop("outerHTML");
-      // console.log(hash, "exists", html);
-      lineSpans.push(html);
+    var $lineWithSameHash = $highlights.find("span[data-pk-hash='" + hash + "']:first");
+    if ($lineWithSameHash.length) {
+      // let html = $lineWithSameHash.prop("outerHTML");
+      lineSpans.push($lineWithSameHash.clone());
     } else {
-      var lineSpan = document.createElement("span");
-      $(lineSpan).attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
-      lineSpans.push(lineSpan);
-      // console.log(hash, "changed", $(lineSpan).html());
+      var $lineSpan = $(document.createElement("span"));
+      $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
+      // $lineSpan.attr("data-pk-hash", hash).html(line + "\n").addClass("pk-line");
+      lineSpans.push($lineSpan);
+      startCorrector($lineSpan);
     }
   }
+  // TODO stopCorrector
   $highlights.empty();
   $highlights.append(lineSpans);
 
-
-  // console.log(lineSpans);
-
-  // var marked = "";
-  // var count = 0;
-  // for (var w of $(this).val().split(" ")) {
-  //   if (!(count % 5)) {
-  //     marked += "<mark>" + w + "</mark> ";
-  //   } else {
-  //     marked += w + " ";
-  //   }
-  //   count++;
-  // }
-  // console.log(marked);
   // $(this).parent().find(".hwt-highlights").html(marked);
-  $($highlights).on("mouseenter", function () {
-    // console.log($(this).text());
-    $highlights.css("zIndex", 0);
-    setTimeout(function () {
-      $highlights.css("zIndex", 10);
-    }, 1000);
-    // $(this).prepend("<div class='pk-tooltip'>I am THE tooltip</div>");
-  });
-  $("mark").on("mouseenter", function () {
-    // console.log($(this).text());
-    // $highlights.css("zIndex", 0);
-    // setTimeout(function () {
-    //   $highlights.css("zIndex", 10);
-    // }, 1000);
-    // $(this).prepend("<div class='pk-tooltip'>I am THE tooltip</div>");
-  });
-  // $("mark").on("mouseleave", function () {
-  //   console.log($(this).text());
-  //   // $textarea.css( "zIndex", 20 );
-  //
+  // $highlights.on("mouseenter", function () {
+  //   // console.log($(this).text());
+  //   $highlights.css("zIndex", 0);
   //   setTimeout(function () {
   //     $highlights.css("zIndex", 10);
   //   }, 1000);
-  //   // $(this).append("<div class='underline'></div>");
-  // });
-  // $("mark").on("hover", function () {
-  //   $highlights.zIndex(-10);
-  //   console.log($(this).text());
-  //   // $(this).append("<div class='underline'></div>");
   // });
 });
 
-// $("mark").on("mouseover", function () {
-//   console.log($(this).text());
-//   // console.log($(this).closest(".hwt-highlights"));
-//   // $textarea.css( "zIndex", 20 );
-//   // $highlights.css("zIndex", 0);
-//   // $(this).append("<div class='underline'></div>");
-// });
-// $("mark").on("mouseleave", function () {
-//   console.log($(this).text());
-//   // console.log($(this).closest(".hwt-highlights"));
-//   // $textarea.css( "zIndex", 20 );
-//   // $highlights.css("zIndex", 0);
-//   // $(this).append("<div class='underline'></div>");
-// });
+function startCorrector($lineOfText) {
+  setTimeout( function () {
+    if ($lineOfText.parent().length) {
+      console.log($lineOfText);
+    }
+  }, 2000);
+}
+
+$(".hwt-highlights").on("mouseenter", function () {
+  var $highlights = $(this);
+  // console.log($(this).text());
+  $highlights.css("zIndex", 0);
+  setTimeout(function () {
+    $highlights.css("zIndex", 10);
+  }, 1000);
+});
 
 
 $("textarea").on("scroll", function () {
@@ -101,7 +65,7 @@ $("textarea").on("scroll", function () {
   $(this).parent().find(".hwt-backdrop").scrollTop(scrollTop);
 });
 
-$(".hwt-backdrop").on("scroll", function () {
+$(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
   var backdrop = $(this);
   clearTimeout($(this).data('timeout'));
   $(this).data('timeout', setTimeout( function () {
