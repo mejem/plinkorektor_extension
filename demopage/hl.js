@@ -16,7 +16,7 @@ $("textarea").on("input", function () {
     $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
     return $lineSpan;
   }
-  var $highlights = $(this).parent().find(".hwt-highlights");
+  var $highlights = $(this).parent().find("div.hwt-highlights");
   var lineSpans = $highlights.children().toArray();
   var lines = $(this).val().split("\n");
   for (var i = 0; i < lines.length; i++) {
@@ -49,7 +49,7 @@ function startCorrector($lineOfText) {
     }
   }, 500);
   $lineOfText.on("pk-tokenized", function () {
-    console.log("teknized");
+    lemmatagger($lineOfText);
   });
 }
 
@@ -64,15 +64,47 @@ function tokenizer($lineOfText) {
        'hash': hash,
        'text': text
    },
-   success: function (tokenizedData) {
+   success: function (data) {
+     if (data == "#INVALID") {
+       console.error("Tokenizer failed on: " + text);
+     }
      $lineOfText.empty();
-     for (let tokenArray of tokenizedData.tokens) {
+     for (let tokenArray of data.tokens) {
        let $token = $(document.createElement("span"));
        let type = tokenArray[0].toLowerCase();
        $token.addClass("pk-token pk-token-type-" + type).text(tokenArray[1]);
        $lineOfText.append($token);
      }
      $lineOfText.trigger("pk-tokenized");
+   }
+  });
+};
+
+function lemmatagger($lineOfText) {
+  var hash = $lineOfText.attr("data-pk-hash");
+  var tokens = $lineOfText.children(".pk-token:not(.pk-token-type-whitespace)").map(function () {
+    return $(this).text();
+  }).get();
+  console.log(JSON.stringify(tokens));
+  $.ajax({
+   type: 'POST',
+   dataType: 'json',
+   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/lemmatagger/lemmatagger.cgi",
+   data: {
+       'hash': hash,
+       'tokens': JSON.stringify(tokens)
+   },
+   success: function (data) {
+     if (data == "#INVALID") {
+       console.error("Lemmatagger failed on: " + JSON.stringify(tokens));
+     }
+     for (let lemmatag of data.lemmata_tags) {
+       if (lemmatag.length == 3) {
+         $lineOfText.children(".pk-token:contains(" + lemmatag[0] + ")").attr("data-pk-lemma", lemmatag[1]).attr("data-pk-tag", lemmatag[2]);
+       } else if (lemmatag[0] != "") {
+         console.error("Lemmatagger assertion error");
+       }
+     }
    }
   });
 };
