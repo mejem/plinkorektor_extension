@@ -45,9 +45,9 @@ $("textarea").on("input", function () {
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
-      console.log($lineOfText);
+      tokenize($lineOfText);
     }
-  }, 2000);
+  }, 500);
 }
 
 $(".hwt-highlights").on("mouseenter", function () {
@@ -74,7 +74,9 @@ $(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt t
   }, 50));
 });
 
-function tokenize(fakeDiv, hash, text) {
+function tokenize($lineOfText) {
+  var hash = $lineOfText.attr("data-pk-hash");
+  var text = $lineOfText.text();
   $.ajax({
    type: 'POST',
    dataType: 'json',
@@ -84,21 +86,13 @@ function tokenize(fakeDiv, hash, text) {
        'text': text
    },
    success: function (tokenizedData) {
-       console.log(tokenizedData);
-       var tokenized = [];
-       for (var tokenArray of tokenizedData.tokens) {
-         var token = document.createElement("g");
-         $(token).attr("data-pk-token-type", tokenArray[0]);
-         $(token).text(tokenArray[1]);
-         tokenized.push(token);
-       }
-
-       var text = datafy($(fakeDiv).html());
-       var hash = hex_md5(text);
-       if (hash == tokenizedData.hash) {
-         $(fakeDiv).html("");
-         $(fakeDiv).append(tokenized);
-       }
+     $lineOfText.empty();
+     for (let tokenArray of tokenizedData.tokens) {
+       let $token = $(document.createElement("span"));
+       let type = tokenArray[0].toLowerCase();
+       $token.addClass("pk-token pk-token-type-" + type).text(tokenArray[1]);
+       $lineOfText.append($token);
+     }
    }
   });
 };

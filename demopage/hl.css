@@ -21,17 +21,16 @@ input {
   padding: 70px 0;
 }
 
-.pk-tooltip {
-  position: absolute;
+.pk-token-type-word {
+  padding: 0 !important;
+  /* color: inherit; */
+  color: inherit;
+  background-color: rgba(0, 255, 0, 0.3);
 }
 
-/* .underline {
-  background-color: red;
-  height: 5px;
-  width: 20px;
-  position: relative;
-  left: 20px;
-  display:
+/* span {
+  padding: 0 !important;
+  border: 0 !important;
 } */
 
 /* hwt */
@@ -82,13 +81,13 @@ input {
 	background: none transparent !important;
 }
 
-.hwt-content mark {
+/* .hwt-content mark {
 	padding: 0 !important;
-	color: red;
+	color: inherit;
   background-color: rgba(0, 255, 0, 0.3);
   border-radius: 4px;
-  /* background-color: transparent; */
-  /* border-bottom: 3px solid red; */
-  /* position: relative;
-  z-index: 10; */
-}
+  background-color: transparent;
+  border-bottom: 3px solid red;
+  position: relative;
+  z-index: 10;
+} */
