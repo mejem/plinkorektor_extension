@@ -11,41 +11,41 @@ $(".hwt-container").prepend("<div class='hwt-backdrop'></div>");
 $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 
 $("textarea").on("input", function () {
+  var createLineSpan = function (hash, line) {
+    let $lineSpan = $(document.createElement("span"));
+    $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
+    return $lineSpan;
+  }
   var $highlights = $(this).parent().find(".hwt-highlights");
-  var lineSpans = [];
+  var lineSpans = $highlights.children().toArray();
   var lines = $(this).val().split("\n");
-  for (let line of lines) {
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
     var hash = hex_md5(line);
-    var $lineWithSameHash = $highlights.find("span[data-pk-hash='" + hash + "']");
-    if ($lineWithSameHash.length == 1) {
-      // let html = $lineWithSameHash.prop("outerHTML");
-      lineSpans.push($lineWithSameHash);
+    if (i < lineSpans.length) {
+      var lineSpan = lineSpans[i];
     } else {
-      var $lineSpan = $(document.createElement("span"));
-      $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
-      // $lineSpan.attr("data-pk-hash", hash).html(line + "\n").addClass("pk-line");
-      lineSpans.push($lineSpan);
-      startCorrector($lineSpan);
+      var $newLineSpan = createLineSpan(hash, line);
+      $highlights.append($newLineSpan);
+      startCorrector($newLineSpan);
+      continue;
+    }
+    if ($(lineSpan).attr("data-pk-hash") != hash) {
+      var $newLineSpan = createLineSpan(hash, line);
+      $(lineSpan).after($newLineSpan);
+      $(lineSpan).remove();
+      startCorrector($newLineSpan);
     }
   }
-  // TODO stopCorrector
-  $highlights.empty();
-  $highlights.append(lineSpans);
-
-  // $(this).parent().find(".hwt-highlights").html(marked);
-  // $highlights.on("mouseenter", function () {
-  //   // console.log($(this).text());
-  //   $highlights.css("zIndex", 0);
-  //   setTimeout(function () {
-  //     $highlights.css("zIndex", 10);
-  //   }, 1000);
-  // });
+  for (; i < lineSpans.length; i++) {
+    $(lineSpans[i]).remove();
+  }
 });
 
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
-      // console.log($lineOfText);
+      console.log($lineOfText);
     }
   }, 2000);
 }
