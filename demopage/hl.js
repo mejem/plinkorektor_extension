@@ -45,36 +45,15 @@ $("textarea").on("input", function () {
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
-      tokenize($lineOfText);
+      tokenizer($lineOfText);
     }
   }, 500);
+  $lineOfText.on("pk-tokenized", function () {
+    console.log("teknized");
+  });
 }
 
-$(".hwt-highlights").on("mouseenter", function () {
-  var $highlights = $(this);
-  // console.log($(this).text());
-  $highlights.css("zIndex", 0);
-  setTimeout(function () {
-    $highlights.css("zIndex", 10);
-  }, 1000);
-});
-
-
-$("textarea").on("scroll", function () {
-  let scrollTop = $(this).scrollTop();
-  $(this).parent().find(".hwt-backdrop").scrollTop(scrollTop);
-});
-
-$(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
-  var backdrop = $(this);
-  clearTimeout($(this).data('timeout'));
-  $(this).data('timeout', setTimeout( function () {
-    let scrollTop = backdrop.scrollTop();
-    backdrop.parent().find("textarea").scrollTop(scrollTop);
-  }, 50));
-});
-
-function tokenize($lineOfText) {
+function tokenizer($lineOfText) {
   var hash = $lineOfText.attr("data-pk-hash");
   var text = $lineOfText.text();
   $.ajax({
@@ -93,6 +72,30 @@ function tokenize($lineOfText) {
        $token.addClass("pk-token pk-token-type-" + type).text(tokenArray[1]);
        $lineOfText.append($token);
      }
+     $lineOfText.trigger("pk-tokenized");
    }
   });
 };
+
+$(".hwt-highlights").on("mouseenter", function () {
+  var $highlights = $(this);
+  // console.log($(this).text());
+  $highlights.css("zIndex", 0);
+  setTimeout(function () {
+    $highlights.css("zIndex", 10);
+  }, 1000);
+});
+
+$("textarea").on("scroll", function () {
+  let scrollTop = $(this).scrollTop();
+  $(this).parent().find(".hwt-backdrop").scrollTop(scrollTop);
+});
+
+$(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
+  var backdrop = $(this);
+  clearTimeout($(this).data('timeout'));
+  $(this).data('timeout', setTimeout( function () {
+    let scrollTop = backdrop.scrollTop();
+    backdrop.parent().find("textarea").scrollTop(scrollTop);
+  }, 50));
+});
