@@ -26,7 +26,22 @@ input {
   /* color: inherit; */
   color: inherit;
   background-color: rgba(0, 255, 0, 0.3);
+  border-bottom: 2px solid rgba(0, 255, 0);
 }
+
+.pk-tooltip {
+  position: absolute;
+  top: 250px;
+  left: 1350px;
+  border: 1px solid black;
+  padding: 15px;
+  z-index: 20;
+  max-width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
+  border-radius: 3px;
+  background-color: white
+}
+
 
 /* span {
   padding: 0 !important;
