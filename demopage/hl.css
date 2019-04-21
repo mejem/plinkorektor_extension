@@ -21,32 +21,31 @@ input {
   padding: 70px 0;
 }
 
-.pk-token-type-word {
+.pk-token-correction {
+  position: relative;
+  z-index: 10;
   padding: 0 !important;
-  /* color: inherit; */
   color: inherit;
+}
+
+.pk-token-correction-typography {
   background-color: rgba(0, 255, 0, 0.3);
   border-bottom: 2px solid rgba(0, 255, 0);
 }
 
 .pk-tooltip {
   position: absolute;
-  top: 250px;
-  left: 1350px;
+  top: 50px;
+  left: 50px;
   border: 1px solid black;
   padding: 15px;
-  z-index: 20;
   max-width: 300px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
   border-radius: 3px;
-  background-color: white
+  background-color: white;
+  z-index: 100;
 }
 
-
-/* span {
-  padding: 0 !important;
-  border: 0 !important;
-} */
 
 /* hwt */
 .hwt-container {
@@ -76,8 +75,8 @@ input {
 	word-wrap: break-word !important;
 	color: transparent !important;
 	overflow: hidden !important;
-  position: relative;
-  z-index: 10;
+  /* position: relative; */
+  /* z-index: 10; */
 }
 
 .hwt-input {

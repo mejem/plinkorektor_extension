@@ -10,10 +10,13 @@
 $(".hwt-container").prepend("<div class='hwt-backdrop'></div>");
 $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 
+$("body").prepend("<div id='pk-tooltip-container'></div>");
+
 $("textarea").on("input", function () {
   var createLineSpan = function (hash, line) {
     let $lineSpan = $(document.createElement("span"));
-    $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
+    // $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
+    $lineSpan.attr("data-pk-hash", hash).html(line + "\n").addClass("pk-line");
     return $lineSpan;
   }
   var $highlights = $(this).parent().find("div.hwt-highlights");
@@ -51,6 +54,56 @@ function startCorrector($lineOfText) {
   $lineOfText.on("pk-tokenized", function () {
     lemmatagger($lineOfText);
   });
+  $lineOfText.on("pk-tokenized", function () {
+    heisenberg($lineOfText);
+  });
+}
+
+function heisenberg($lineOfText) {
+  var $spaces = $lineOfText.children(".pk-token-type-whitespace:contains(  )");
+  correct($spaces, "Odstraňte přebytečné mezery.", heisenberg.name);
+}
+
+function correct($token, explanation, moduleName) {
+  // var $container = $token.closest(".hwt-container");
+  switch (moduleName) {
+    case "heisenberg":
+      let classes = "pk-token-correction pk-token-correction-typography";
+      $token.addClass(classes);
+      // $token.prev().addClass(classes);
+      // $token.next().addClass(classes);
+      createTooltip($token, explanation);
+      // $token.prev().on("mouseenter", function () {
+      //   $token.trigger("mouseenter");
+      // });
+      // $token.next().on("mouseenter", function () {
+      //   $token.trigger("mouseenter");
+      // });
+      break;
+    default:
+      console.log("default for module" + moduleName);
+  }
+}
+
+function createTooltip($token, text) {
+  var $tooltip = $(document.createElement("div"));
+  $tooltip.hide();
+  $tooltip.addClass("pk-tooltip");
+  $tooltip.text(text);
+  $("#pk-tooltip-container").append($tooltip);
+  $token.on("mouseenter", function () {
+    $token.css("zIndex", 0);
+    let coordinates = {
+      top: $token.offset().top + 20 ,
+      left: $token.offset().left - $tooltip.width()/2
+    };
+    $tooltip.css(coordinates);
+    $tooltip.show();
+    setTimeout(function () {
+      $token.css("zIndex", 10);
+      $tooltip.hide();
+    }, 1000);
+  });
 }
 
 function tokenizer($lineOfText) {
@@ -85,7 +138,7 @@ function lemmatagger($lineOfText) {
   var tokens = $lineOfText.children(".pk-token:not(.pk-token-type-whitespace)").map(function () {
     return $(this).text();
   }).get();
-  console.log(JSON.stringify(tokens));
+  // console.log(JSON.stringify(tokens));
   $.ajax({
    type: 'POST',
    dataType: 'json',
@@ -109,25 +162,25 @@ function lemmatagger($lineOfText) {
   });
 };
 
-$(".hwt-highlights").on("mouseenter", function () {
-  var $highlights = $(this);
-  // console.log($(this).text());
-  $highlights.css("zIndex", 0);
-  setTimeout(function () {
-    $highlights.css("zIndex", 10);
-  }, 1000);
-});
+// $(".hwt-highlights").on("mouseenter", function () {
+//   var $highlights = $(this);
+//   // console.log($(this).text());
+//   $highlights.css("zIndex", 0);
+//   setTimeout(function () {
+//     $highlights.css("zIndex", 10);
+//   }, 1000);
+// });
 
 $("textarea").on("scroll", function () {
   let scrollTop = $(this).scrollTop();
   $(this).parent().find(".hwt-backdrop").scrollTop(scrollTop);
 });
 
-$(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
-  var backdrop = $(this);
-  clearTimeout($(this).data('timeout'));
-  $(this).data('timeout', setTimeout( function () {
-    let scrollTop = backdrop.scrollTop();
-    backdrop.parent().find("textarea").scrollTop(scrollTop);
-  }, 50));
-});
+// $(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
+//   var backdrop = $(this);
+//   clearTimeout($(this).data('timeout'));
+//   $(this).data('timeout', setTimeout( function () {
+//     let scrollTop = backdrop.scrollTop();
+//     backdrop.parent().find("textarea").scrollTop(scrollTop);
+//   }, 50));
+// });
