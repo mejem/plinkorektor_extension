@@ -2,12 +2,12 @@
   "manifest_version": 2,
   "name": "Plinkorektor",
   "description" : "Automatický jazykový korektor pro češtinu",
-  "version": "0.1",
+  "version": "0.2",
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "css": ["jquery.highlight-within-textarea.css"],
+      "css": ["pk.css"],
       "js": ["jquery-3.3.1.js", "md5.js", "contentScript.js"]
     }
   ]

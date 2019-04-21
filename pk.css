@@ -1,8 +1,37 @@
+
+.pk-token-correction {
+  position: relative;
+  z-index: 10;
+  padding: 0 !important;
+  color: inherit;
+}
+
+.pk-token-correction-typography {
+  background-color: rgba(0, 255, 0, 0.3);
+  border-bottom: 2px solid rgba(0, 255, 0);
+}
+
+.pk-tooltip {
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  border: 1px solid black;
+  padding: 15px;
+  max-width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
+  border-radius: 3px;
+  background-color: white;
+  z-index: 100;
+}
+
+
+/* hwt */
 .hwt-container {
 	display: inline-block;
 	position: relative;
 	overflow: hidden !important;
 	-webkit-text-size-adjust: none !important;
+  background-color: white;
 }
 
 .hwt-backdrop {
@@ -24,6 +53,8 @@
 	word-wrap: break-word !important;
 	color: transparent !important;
 	overflow: hidden !important;
+  /* position: relative; */
+  /* z-index: 10; */
 }
 
 .hwt-input {
@@ -42,7 +73,13 @@
 	background: none transparent !important;
 }
 
-.hwt-content mark {
+/* .hwt-content mark {
 	padding: 0 !important;
 	color: inherit;
-}
+  background-color: rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  background-color: transparent;
+  border-bottom: 3px solid red;
+  position: relative;
+  z-index: 10;
+} */
