@@ -65,23 +65,14 @@ function heisenberg($lineOfText) {
 }
 
 function correct($token, explanation, moduleName) {
-  // var $container = $token.closest(".hwt-container");
   switch (moduleName) {
     case "heisenberg":
       let classes = "pk-token-correction pk-token-correction-typography";
       $token.addClass(classes);
-      // $token.prev().addClass(classes);
-      // $token.next().addClass(classes);
       createTooltip($token, explanation);
-      // $token.prev().on("mouseenter", function () {
-      //   $token.trigger("mouseenter");
-      // });
-      // $token.next().on("mouseenter", function () {
-      //   $token.trigger("mouseenter");
-      // });
       break;
     default:
-      console.log("default for module" + moduleName);
+      console.err("default for module" + moduleName);
   }
 }
 
