@@ -78,8 +78,14 @@ function startCorrector($lineOfText) {
   }, 500);
   $lineOfText.on("pk-tokenized", function () {
     lemmatagger($lineOfText);
+  });
+  $lineOfText.on("pk-tokenized", function () {
     heisenberg($lineOfText);
+  });
+  $lineOfText.on("pk-tokenized", function () {
     tritypo($lineOfText);
+  });
+  $lineOfText.on("pk-tokenized", function () {
     eyecheck($lineOfText);
   });
 }
