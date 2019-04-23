@@ -13,9 +13,9 @@ $(".hwt-backdrop").append("<div class='hwt-highlights hwt-content'></div>");
 $("body").prepend("<div id='pk-tooltip-container'></div>");
 
 $("textarea").on("input", function () {
+  autoCorrect($(this));
   var createLineSpan = function (hash, line) {
     let $lineSpan = $(document.createElement("span"));
-    // $lineSpan.attr("data-pk-hash", hash).html("<mark>" + line + "</mark>" + "\n").addClass("pk-line");
     $lineSpan.attr("data-pk-hash", hash).html(line + "\n").addClass("pk-line");
     return $lineSpan;
   }
@@ -45,6 +45,31 @@ $("textarea").on("input", function () {
   }
 });
 
+function autoCorrect($textarea) {
+  var cursor = $textarea.prop("selectionEnd");
+  var result = tritypoAuto($textarea.val());
+  $textarea.val(result.text);
+  $textarea.prop("selectionEnd", cursor + result.cursor);
+}
+
+function tritypoAuto(text) {
+  var cursor = 0;
+  var fixedWhitespace = '\u202F';
+  // FIXED_PERCENT: There should be fixed whitespace between number and %
+  text = text.replace(/(\d) %/g, "$1" + fixedWhitespace + "%");
+  // PARAGRAPH: There should be fixed whitespace between § and number
+  text = text.replace(/§ (\d)/g, "§" + fixedWhitespace + "$1");
+  var tmp = text.match(/§(\d)/g);
+  if (tmp) {
+    cursor += tmp.length;
+    text = text.replace(/§(\d)/g, "§" + fixedWhitespace + "$1");
+  }
+  return {
+    text: text,
+    cursor: cursor
+  };
+}
+
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
@@ -53,9 +78,23 @@ function startCorrector($lineOfText) {
   }, 500);
   $lineOfText.on("pk-tokenized", function () {
     lemmatagger($lineOfText);
-  });
-  $lineOfText.on("pk-tokenized", function () {
     heisenberg($lineOfText);
+    tritypo($lineOfText);
+  });
+}
+
+function tritypo($lineOfText) {
+  // WS_BEFORE: Whitespace before [.,;?!]
+  $lineOfText.children(":contains('.'),:contains(','),:contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
+    if ($(e).prev().text() == " ") {
+      correct($(e).prev(), "Odstraňte mezeru před '" + $(e).text() + "'", tritypo.name);
+    }
+  });
+  // WS_AFTER: Whitespace after [;?!]
+  $lineOfText.children(":contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
+    if ($(e).next().text() != " ") {
+      correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", tritypo.name);
+    }
   });
 }
 
@@ -67,12 +106,13 @@ function heisenberg($lineOfText) {
 function correct($token, explanation, moduleName) {
   switch (moduleName) {
     case "heisenberg":
+    case "tritypo":
       let classes = "pk-token-correction pk-token-correction-typography";
       $token.addClass(classes);
       createTooltip($token, explanation);
       break;
     default:
-      console.err("default for module" + moduleName);
+      console.error("default for module " + moduleName);
   }
 }
 
