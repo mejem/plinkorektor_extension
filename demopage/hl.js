@@ -50,6 +50,8 @@ function autoCorrect($textarea) {
   var result = tritypoAuto($textarea.val());
   $textarea.val(result.text);
   $textarea.prop("selectionEnd", cursor + result.cursor);
+  var newHash = hex_md5(result.text);
+  $textarea.attr("data-pk-hash", newHash);
 }
 
 function tritypoAuto(text) {
@@ -82,6 +84,41 @@ function startCorrector($lineOfText) {
       window[mod]($lineOfText);
     });
   });
+  $lineOfText.on("pk-lemmatagger", function () {
+    commet($lineOfText);
+  });
+}
+
+function commet($lineOfText) {
+  var hash = $lineOfText.attr("data-pk-hash");
+  var $tokens = $lineOfText.children(":not(.pk-token-type-whitespace)");
+  var tokens_data = $tokens.map(function (i, e) {
+    return {
+      position: i,
+      word: $(e).text(),
+      lemma: $(e).attr("data-pk-lemma"),
+      tag: $(e).attr("data-pk-tag")
+    };
+  }).get();
+
+  $.ajax({
+   type: 'POST',
+   dataType: 'json',
+   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/commet/commet.cgi",
+   data: {
+       'hash': hash,
+       'tokens_data': JSON.stringify(tokens_data)
+   },
+   success: function (data) {
+     if (data == "#INVALID") {
+       console.error("Commet failed");
+     }
+     for (let index of data.tokens) {
+       let $token = $tokens.eq(index + 1);
+       correct($token, "Doplňte čárku před '" + $token.text() + "'", "grammar");
+     }
+   }
+  });
 }
 
 function eyecheck($lineOfText) {
@@ -91,6 +128,7 @@ function eyecheck($lineOfText) {
     return $(e).text();
   });
   words = Array.from(new Set(words)); // remove duplicities
+
   $.ajax({
    type: 'POST',
    dataType: 'json',
@@ -104,7 +142,7 @@ function eyecheck($lineOfText) {
    },
    success: function (data) {
      if (data == "#INVALID") {
-       console.error("Eyecheck failed on: " + text);
+       console.error("Eyecheck failed");
      }
      data.tokens.forEach(function (word) {
        $lineOfText.children(".pk-token:contains('" + word + "')").each(function (i, token) {
@@ -136,7 +174,7 @@ function heisenberg($lineOfText) {
 }
 
 function correct($token, explanation, type) {
-  var types = ["typography", "spelling"];
+  var types = ["typography", "spelling", "grammar"];
   if ($.inArray(type, types) == -1) {
     console.error("invalid type of mistake: " + type);
   }
@@ -170,6 +208,7 @@ function createTooltip($token, text) {
 function tokenizer($lineOfText) {
   var hash = $lineOfText.attr("data-pk-hash");
   var text = $lineOfText.text();
+
   $.ajax({
    type: 'POST',
    dataType: 'json',
@@ -199,7 +238,7 @@ function lemmatagger($lineOfText) {
   var tokens = $lineOfText.children(".pk-token:not(.pk-token-type-whitespace)").map(function () {
     return $(this).text();
   }).get();
-  // console.log(JSON.stringify(tokens));
+
   $.ajax({
    type: 'POST',
    dataType: 'json',
@@ -219,6 +258,7 @@ function lemmatagger($lineOfText) {
          console.error("Lemmatagger assertion error");
        }
      }
+     $lineOfText.trigger("pk-lemmatagger");
    }
   });
 };
