@@ -80,6 +80,38 @@ function startCorrector($lineOfText) {
     lemmatagger($lineOfText);
     heisenberg($lineOfText);
     tritypo($lineOfText);
+    eyecheck($lineOfText);
+  });
+}
+
+function eyecheck($lineOfText) {
+  var hash = $lineOfText.attr("data-pk-hash");
+  var tokens = $lineOfText.children(".pk-token-type-word").toArray();
+  var words = tokens.map(function (e) {
+    return $(e).text();
+  });
+  words = Array.from(new Set(words)); // remove duplicities
+  $.ajax({
+   type: 'POST',
+   dataType: 'json',
+   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/eyecheck/eyecheck.cgi",
+   data: {
+     'hash': hash,
+     'tokens': JSON.stringify({
+         'tokens' : words,
+         'words' : words
+     })
+   },
+   success: function (data) {
+     if (data == "#INVALID") {
+       console.error("Eyecheck failed on: " + text);
+     }
+     data.tokens.forEach(function (word) {
+       $lineOfText.children(".pk-token:contains('" + word + "')").each(function (i, token) {
+         correct($(token), "Slovo '" + word + "' nebylo nalezeno ve slovníku, překontrolujte si jej, prosím.", eyecheck.name);
+       });
+     });
+   }
   });
 }
 
@@ -92,7 +124,8 @@ function tritypo($lineOfText) {
   });
   // WS_AFTER: Whitespace after [;?!]
   $lineOfText.children(":contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
-    if ($(e).next().text() != " ") {
+    if ($(e).next().text() != "\n" && $(e).next().text() != " ") {
+      console.log($(e).next());
       correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", tritypo.name);
     }
   });
@@ -104,11 +137,15 @@ function heisenberg($lineOfText) {
 }
 
 function correct($token, explanation, moduleName) {
+  var classes;
   switch (moduleName) {
     case "heisenberg":
     case "tritypo":
-      let classes = "pk-token-correction pk-token-correction-typography";
-      $token.addClass(classes);
+      $token.addClass("pk-token-correction pk-token-correction-typography");
+      createTooltip($token, explanation);
+      break;
+    case "eyecheck":
+      $token.addClass("pk-token-correction pk-token-correction-spelling");
       createTooltip($token, explanation);
       break;
     default:

@@ -30,7 +30,12 @@ input {
 
 .pk-token-correction-typography {
   background-color: rgba(0, 255, 0, 0.3);
-  border-bottom: 2px solid rgba(0, 255, 0);
+  border-bottom: 3px solid rgba(0, 255, 0);
+}
+
+.pk-token-correction-spelling {
+  background-color: rgba(255, 0, 0, 0.3);
+  border-bottom: 3px solid rgba(255, 0, 0);
 }
 
 .pk-tooltip {
