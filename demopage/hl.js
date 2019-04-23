@@ -1,5 +1,36 @@
 'use strict';
 
+$.expr[':'].regex = function(elem, index, match) {
+    var matchParams = match[3].split(','),
+        validLabels = /^(data|css):/,
+        attr = {
+            method: matchParams[0].match(validLabels) ?
+                        matchParams[0].split(':')[0] : 'attr',
+            property: matchParams.shift().replace(validLabels,'')
+        },
+        regexFlags = 'ig',
+        regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
+    return regex.test(jQuery(elem)[attr.method](attr.property));
+} // https://j11y.io/javascript/regex-selector-for-jquery/
+
+$.expr[':'].icontains = function(a, i, m) {
+  return jQuery(a).text().toUpperCase()
+      .indexOf(m[3].toUpperCase()) >= 0;
+};
+
+$.expr[':'].textEquals = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+      return $(elem).text().match("^" + arg + "$");
+    };
+});
+
+$.expr[':'].itextEquals = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+      var re = new RegExp("^" + arg + "$", "gi");
+      return $(elem).text().match(re);
+    };
+});
+
 {
   let $textarea = $("textarea");
   $textarea.addClass("hwt-input hwt-content");
@@ -78,7 +109,7 @@ function startCorrector($lineOfText) {
       tokenizer($lineOfText);
     }
   }, 500);
-  var modules = ["lemmatagger", "heisenberg", "tritypo", "eyecheck"];
+  var modules = ["lemmatagger", "heisenberg", "tritypo", "eyecheck", "abyss"];
   modules.forEach(function (mod) {
     $lineOfText.on("pk-tokenized", function () {
       window[mod]($lineOfText);
@@ -86,6 +117,46 @@ function startCorrector($lineOfText) {
   });
   $lineOfText.on("pk-lemmatagger", function () {
     commet($lineOfText);
+  });
+}
+
+function abyss($lineOfText) {
+  $lineOfText.children(":itextEquals(abys),:itextEquals(bys),:itextEquals(kdybys)").each(function (i, e) {
+    if ($(e).next().hasClass("pk-token-type-whitespace") && ["si", "se"].includes($(e).next().next().text())) {
+      let explanation = "Změňte '" + $(e).text() + " " + $(e).next().next().text() + "' na '" + $(e).text().slice(0, -1) + " " + $(e).next().next().text() + "s'.";
+      correct($(e), explanation, "grammar");
+      correct($(e).next(), explanation, "grammar");
+      correct($(e).next().next(), explanation, "grammar");
+    }
+  });
+  $lineOfText.children(":itextEquals(jsi)").each(function (i, e) {
+    if ($(e).next().hasClass("pk-token-type-whitespace") && ["si", "se"].includes($(e).next().next().text())) {
+      let explanation = "Změňte '" + $(e).text() + " " + $(e).next().next().text() + "' na '" + $(e).next().next().text() + "s'.";
+      correct($(e), explanation, "grammar");
+      correct($(e).next(), explanation, "grammar");
+      correct($(e).next().next(), explanation, "grammar");
+    }
+  });
+  $lineOfText.children(":itextEquals(by),:itextEquals(aby),:itextEquals(kdyby)").each(function (i, e) {
+    if ($(e).next().hasClass("pk-token-type-whitespace") && ['jsme', 'jste', 'jsem'].includes($(e).next().next().text())) {
+      let rules = {
+        "jsme": "chom",
+        "jste": "ste",
+        "jsem": "ch"
+      };
+      let explanation = "Změňte '" + $(e).text() + " " + $(e).next().next().text() + "' na '" + $(e).text() + rules[$(e).next().next().text().toLowerCase()] + "'.";
+      correct($(e), explanation, "grammar");
+      correct($(e).next(), explanation, "grammar");
+      correct($(e).next().next(), explanation, "grammar");
+    }
+  });
+  $lineOfText.children(":itextEquals(bysme),:itextEquals(bysem)").each(function (i, e) {
+    let rules = {
+      "bysme": "ychom",
+      "bysem": "ych"
+    };
+    let explanation = "Změňte '" + $(e).text() + "' na '" + $(e).text().slice(0, 1) + rules[$(e).text().toLowerCase()] + "'.";
+    correct($(e), explanation, "grammar");
   });
 }
 
