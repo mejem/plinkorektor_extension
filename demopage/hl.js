@@ -76,17 +76,11 @@ function startCorrector($lineOfText) {
       tokenizer($lineOfText);
     }
   }, 500);
-  $lineOfText.on("pk-tokenized", function () {
-    lemmatagger($lineOfText);
-  });
-  $lineOfText.on("pk-tokenized", function () {
-    heisenberg($lineOfText);
-  });
-  $lineOfText.on("pk-tokenized", function () {
-    tritypo($lineOfText);
-  });
-  $lineOfText.on("pk-tokenized", function () {
-    eyecheck($lineOfText);
+  var modules = ["lemmatagger", "heisenberg", "tritypo", "eyecheck"];
+  modules.forEach(function (mod) {
+    $lineOfText.on("pk-tokenized", function () {
+      window[mod]($lineOfText);
+    });
   });
 }
 
@@ -130,7 +124,7 @@ function tritypo($lineOfText) {
   });
   // WS_AFTER: Whitespace after [;?!]
   $lineOfText.children(":contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
-    if ($(e).next().text() != "\n" && $(e).next().text() != " ") {
+    if (!$(e).next().hasClass("pk-token-type-whitespace")) {
       correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", "typography");
     }
   });
