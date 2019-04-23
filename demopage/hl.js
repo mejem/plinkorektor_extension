@@ -136,6 +136,10 @@ function heisenberg($lineOfText) {
 }
 
 function correct($token, explanation, type) {
+  var types = ["typography", "spelling"];
+  if ($.inArray(type, types) == -1) {
+    console.error("invalid type of mistake: " + type);
+  }
   var classes = "pk-token-correction pk-token-correction-" + type;
   $token.addClass(classes);
   createTooltip($token, explanation);
