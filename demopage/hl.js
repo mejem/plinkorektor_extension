@@ -108,7 +108,7 @@ function eyecheck($lineOfText) {
      }
      data.tokens.forEach(function (word) {
        $lineOfText.children(".pk-token:contains('" + word + "')").each(function (i, token) {
-         correct($(token), "Slovo '" + word + "' nebylo nalezeno ve slovníku, překontrolujte si jej, prosím.", eyecheck.name);
+         correct($(token), "Slovo '" + word + "' nebylo nalezeno ve slovníku, překontrolujte si jej, prosím.", "spelling");
        });
      });
    }
@@ -119,38 +119,26 @@ function tritypo($lineOfText) {
   // WS_BEFORE: Whitespace before [.,;?!]
   $lineOfText.children(":contains('.'),:contains(','),:contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
     if ($(e).prev().text() == " ") {
-      correct($(e).prev(), "Odstraňte mezeru před '" + $(e).text() + "'", tritypo.name);
+      correct($(e).prev(), "Odstraňte mezeru před '" + $(e).text() + "'", "typography");
     }
   });
   // WS_AFTER: Whitespace after [;?!]
   $lineOfText.children(":contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
     if ($(e).next().text() != "\n" && $(e).next().text() != " ") {
-      console.log($(e).next());
-      correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", tritypo.name);
+      correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", "typography");
     }
   });
 }
 
 function heisenberg($lineOfText) {
   var $spaces = $lineOfText.children(".pk-token-type-whitespace:contains(  )");
-  correct($spaces, "Odstraňte přebytečné mezery.", heisenberg.name);
+  correct($spaces, "Odstraňte přebytečné mezery.", "typography");
 }
 
-function correct($token, explanation, moduleName) {
-  var classes;
-  switch (moduleName) {
-    case "heisenberg":
-    case "tritypo":
-      $token.addClass("pk-token-correction pk-token-correction-typography");
-      createTooltip($token, explanation);
-      break;
-    case "eyecheck":
-      $token.addClass("pk-token-correction pk-token-correction-spelling");
-      createTooltip($token, explanation);
-      break;
-    default:
-      console.error("default for module " + moduleName);
-  }
+function correct($token, explanation, type) {
+  var classes = "pk-token-correction pk-token-correction-" + type;
+  $token.addClass(classes);
+  createTooltip($token, explanation);
 }
 
 function createTooltip($token, text) {
