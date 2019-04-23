@@ -216,7 +216,7 @@ function eyecheck($lineOfText) {
        console.error("Eyecheck failed");
      }
      data.tokens.forEach(function (word) {
-       $lineOfText.children(".pk-token:contains('" + word + "')").each(function (i, token) {
+       $lineOfText.children(".pk-token:textEquals('" + word + "')").each(function (i, token) {
          correct($(token), "Slovo '" + word + "' nebylo nalezeno ve slovníku, překontrolujte si jej, prosím.", "spelling");
        });
      });
