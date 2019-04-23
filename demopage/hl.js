@@ -1,23 +1,5 @@
 'use strict';
 
-$.expr[':'].regex = function(elem, index, match) {
-    var matchParams = match[3].split(','),
-        validLabels = /^(data|css):/,
-        attr = {
-            method: matchParams[0].match(validLabels) ?
-                        matchParams[0].split(':')[0] : 'attr',
-            property: matchParams.shift().replace(validLabels,'')
-        },
-        regexFlags = 'ig',
-        regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
-    return regex.test(jQuery(elem)[attr.method](attr.property));
-} // https://j11y.io/javascript/regex-selector-for-jquery/
-
-$.expr[':'].icontains = function(a, i, m) {
-  return jQuery(a).text().toUpperCase()
-      .indexOf(m[3].toUpperCase()) >= 0;
-};
-
 $.expr[':'].textEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
       return $(elem).text().match("^" + arg + "$");
@@ -324,7 +306,7 @@ function lemmatagger($lineOfText) {
      }
      for (let lemmatag of data.lemmata_tags) {
        if (lemmatag.length == 3) {
-         $lineOfText.children(".pk-token:contains(" + lemmatag[0] + ")").attr("data-pk-lemma", lemmatag[1]).attr("data-pk-tag", lemmatag[2]);
+         $lineOfText.children(".pk-token:textEquals(" + lemmatag[0] + ")").attr("data-pk-lemma", lemmatag[1]).attr("data-pk-tag", lemmatag[2]);
        } else if (lemmatag[0] != "") {
          console.error("Lemmatagger assertion error");
        }
