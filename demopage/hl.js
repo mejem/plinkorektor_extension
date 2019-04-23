@@ -152,6 +152,7 @@ function createTooltip($token, text) {
   $tooltip.text(text);
   $("#pk-tooltip-container").append($tooltip);
   $token.on("mouseenter", function () {
+    $("#pk-tooltip-container").children().hide();
     $token.css("zIndex", 0);
     let coordinates = {
       top: $token.offset().top + 20 ,
