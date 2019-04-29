@@ -1,14 +1,18 @@
 'use strict';
 
+function escapeRegExp(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
 $.expr[':'].textEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      return $(elem).text().match("^" + arg + "$");
+      return $(elem).text().match("^" + escapeRegExp(arg) + "$");
     };
 });
 
 $.expr[':'].itextEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      var re = new RegExp("^" + arg + "$", "gi");
+      var re = new RegExp("^" + escapeRegExp(arg) + "$", "gi");
       return $(elem).text().match(re);
     };
 });
@@ -60,7 +64,9 @@ $("textarea").on("input", function () {
 
 function autoCorrect($textarea) {
   var cursor = $textarea.prop("selectionEnd");
-  var result = tritypoAuto($textarea.val());
+  var text = $textarea.val();
+  text = cvokAuto(text);
+  var result = tritypoAuto(text);
   $textarea.val(result.text);
   $textarea.prop("selectionEnd", cursor + result.cursor);
   var newHash = hex_md5(result.text);
@@ -85,13 +91,19 @@ function tritypoAuto(text) {
   };
 }
 
+function cvokAuto(text) {
+  var fixedWhitespace = '\u00A0';
+  text = text.replace(/([KSVZksvzAI]) /g, "$1" + fixedWhitespace);
+  return text;
+}
+
 function startCorrector($lineOfText) {
   setTimeout( function () {
     if ($lineOfText.parent().length) {
       tokenizer($lineOfText);
     }
   }, 500);
-  var modules = ["lemmatagger", "heisenberg", "tritypo", "eyecheck", "abyss"];
+  var modules = ["lemmatagger", "heisenberg", "tritypo", "eyecheck", "abyss", "cvok"];
   modules.forEach(function (mod) {
     $lineOfText.on("pk-tokenized", function () {
       window[mod]($lineOfText);
@@ -99,6 +111,40 @@ function startCorrector($lineOfText) {
   });
   $lineOfText.on("pk-lemmatagger", function () {
     commet($lineOfText);
+  });
+}
+
+function cvok($lineOfText) {
+  const consonants = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'z'];
+  const vocals = ['a', 'e', 'i', 'o', 'u', 'y'];
+  var $tokens = $lineOfText.children(".pk-token-type-whitespace");
+  $tokens.each(function (i, e) {
+    if ($(e).text() == "\n") {
+      return;
+    }
+    let preposition = $(e).prev().text().toLowerCase();
+    let next_letter = $(e).next().text().charAt(0).toLowerCase();
+    let next_word_cleaned =  $(e).next().text().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+    if (preposition == 's' && $(e).next().text() == "sebou") {
+      return;
+    }
+    if (
+      (preposition == 'k' && (next_letter == 'k' || next_letter == 'g'))
+      || ((preposition == 's' || preposition == 'z')
+          && (next_letter == 's' || next_letter == 'š' || next_letter == 'z' || next_letter == 'ž'))
+      || (preposition == 'v' && (next_letter == 'v' || next_letter == 'f'))
+    ) {
+      let explanation = 'Změňte "' + $(e).prev().text() + '" na "' + $(e).prev().text() + 'e" před "' + $(e).next().text() + '".'
+      correct($(e).prev(), explanation, "grammar");
+    } else if (
+      (vocals.includes(next_letter) || (consonants.includes(next_word_cleaned.charAt(0).toLowerCase()) && vocals.includes(next_word_cleaned.charAt(1).toLowerCase())))
+      && ((preposition == 'ke' && (next_letter == 'k' || next_letter == 'g'))
+      || (preposition == 'ze' && (next_letter == 's' || next_letter == 'š' || next_letter == 'z' || next_letter == 'ž'))
+      || (preposition == 've' && (next_letter == 'v' || next_letter == 'f')))
+    ) {
+      let explanation = 'Změňte "' + $(e).prev().text() + '" na "' + $(e).prev().text().slice(0, -1) + '" před "' + $(e).next().text() + '".'
+      correct($(e).prev(), explanation, "grammar");
+    }
   });
 }
 
@@ -157,7 +203,7 @@ function commet($lineOfText) {
   $.ajax({
    type: 'POST',
    dataType: 'json',
-   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/commet/commet.cgi",
+   url: "https://nlp.fi.muni.cz/projekty/corrector/xejem/backend/commet/commet.cgi",
    data: {
        'hash': hash,
        'tokens_data': JSON.stringify(tokens_data)
@@ -185,7 +231,7 @@ function eyecheck($lineOfText) {
   $.ajax({
    type: 'POST',
    dataType: 'json',
-   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/eyecheck/eyecheck.cgi",
+   url: "https://nlp.fi.muni.cz/projekty/corrector/xejem/backend/eyecheck/eyecheck.cgi",
    data: {
      'hash': hash,
      'tokens': JSON.stringify({
@@ -265,7 +311,7 @@ function tokenizer($lineOfText) {
   $.ajax({
    type: 'POST',
    dataType: 'json',
-   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/tokenizer/tokenizer.cgi",
+   url: "https://nlp.fi.muni.cz/projekty/corrector/xejem/backend/tokenizer/tokenizer.cgi",
    data: {
        'hash': hash,
        'text': text
@@ -295,7 +341,7 @@ function lemmatagger($lineOfText) {
   $.ajax({
    type: 'POST',
    dataType: 'json',
-   url: "https://nlp.fi.muni.cz/projekty/corrector/backend/lemmatagger/lemmatagger.cgi",
+   url: "https://nlp.fi.muni.cz/projekty/corrector/xejem/backend/lemmatagger/lemmatagger.cgi",
    data: {
        'hash': hash,
        'tokens': JSON.stringify(tokens)
