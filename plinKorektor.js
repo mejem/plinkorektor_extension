@@ -260,7 +260,7 @@ function eyecheck($lineOfText) {
 
 function tritypo($lineOfText) {
   // WS_BEFORE: Whitespace before [.,;?!]
-  $lineOfText.children(":contains('.'),:contains(','),:contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
+  $lineOfText.children(":textEquals('.'),:textEquals(','),:textEquals(';'),:textEquals('?'),:textEquals('!')").each(function (i, e) {
     if ($(e).prev().text() == " ") {
       correct($(e).prev(), "Odstraňte mezeru před '" + $(e).text() + "'", "typography");
     }
