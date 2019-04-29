@@ -368,49 +368,7 @@ function lemmatagger($lineOfText) {
   });
 };
 
-// $(".hwt-highlights").on("mouseenter", function () {
-//   var $highlights = $(this);
-//   // console.log($(this).text());
-//   $highlights.css("zIndex", 0);
-//   setTimeout(function () {
-//     $highlights.css("zIndex", 10);
-//   }, 1000);
-// });
-
 $("textarea").on("scroll", function () {
   let scrollTop = $(this).scrollTop();
   $(this).parent().find(".hwt-backdrop").scrollTop(scrollTop);
 });
-
-// $(".hwt-backdrop").on("scroll", function () { // toto by v budoucnu nemelo byt treba
-//   var backdrop = $(this);
-//   clearTimeout($(this).data('timeout'));
-//   $(this).data('timeout', setTimeout( function () {
-//     let scrollTop = backdrop.scrollTop();
-//     backdrop.parent().find("textarea").scrollTop(scrollTop);
-//   }, 50));
-// });
-
-
-// function htmlfy(dataText) {
-//   return dataText.replace(/&/g, '&amp;') //       & -> &amp;
-//   .replace(/</g, '&lt;') //       < -> &lt;
-//   .replace(/>/g, '&gt;') //       > -> &gt;
-//   .replace(/"/g, '&quot;') //       " -> &quot;
-//   .replace(/'/g, '&apos;') //       ' -> &apos;
-//   .replace(/\//g, '&#x2F;') //       / -> &#x2F;
-//   .replace(/\n/g, '<br>') //      \n -> <br>
-//   .replace(/ /g, '&nbsp;'); //     ' ' -> &nbsp;
-// };
-//
-// function datafy(formattedText) {
-//   return formattedText.replace(/<(?!br|\/br).+?>/gm, '') //  strip tags
-//   .replace(/<br>/g, '\n') //  <br> -> \n
-//   .replace(/&lt;/g, '<') //  &lt; -> <
-//   .replace(/&gt;/g, '>') //  &gt; -> >
-//   .replace(/&amp;/g, '&') //  &amp; -> &
-//   .replace(/&quot;/g, '"') //  &quot -> "
-//   .replace(/&apos;/g, "'") //  &apos -> '
-//   .replace(/&#x2F/g, "/") //  &#x2F -> /
-//   .replace(/&nbsp;/g, ' '); //  &nbsp; -> ' '
-// };
