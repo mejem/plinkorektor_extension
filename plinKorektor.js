@@ -6,22 +6,24 @@ function escapeRegExp(text) {
 
 $.expr[':'].textEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      return $(elem).text().match("^" + escapeRegExp(arg) + "$");
+      return $(elem).text().match("^" + arg + "$");
     };
 });
 
 $.expr[':'].itextEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      var re = new RegExp("^" + escapeRegExp(arg) + "$", "gi");
+      var re = new RegExp("^" + arg + "$", "gi");
       return $(elem).text().match(re);
     };
 });
 
 {
   let $textarea = $("textarea");
-  $textarea.addClass("hwt-input hwt-content");
-  $textarea.attr("spellcheck", "false");
-  $textarea.wrap("<div class='hwt-container'></div>");
+  if ($textarea.is(":visible")) {
+    $textarea.addClass("hwt-input hwt-content");
+    $textarea.attr("spellcheck", "false");
+    $textarea.wrap("<div class='hwt-container'></div>");
+  }
 }
 
 $(".hwt-container").prepend("<div class='hwt-backdrop'></div>");
@@ -138,12 +140,16 @@ function cvok($lineOfText) {
       correct($(e).prev(), explanation, "grammar");
     } else if (
       (vocals.includes(next_letter) || (consonants.includes(next_word_cleaned.charAt(0).toLowerCase()) && vocals.includes(next_word_cleaned.charAt(1).toLowerCase())))
-      && ((preposition == 'ke' && (next_letter == 'k' || next_letter == 'g'))
-      || (preposition == 'ze' && (next_letter == 's' || next_letter == 'š' || next_letter == 'z' || next_letter == 'ž'))
-      || (preposition == 've' && (next_letter == 'v' || next_letter == 'f')))
     ) {
-      let explanation = 'Změňte "' + $(e).prev().text() + '" na "' + $(e).prev().text().slice(0, -1) + '" před "' + $(e).next().text() + '".'
-      correct($(e).prev(), explanation, "grammar");
+      if (
+        (preposition == 'ke' && (next_letter == 'k' || next_letter == 'g'))
+        || (preposition == 'ze' && (next_letter == 's' || next_letter == 'š' || next_letter == 'z' || next_letter == 'ž'))
+        || (preposition == 've' && (next_letter == 'v' || next_letter == 'f'))
+      ) {
+        return;
+      } else {
+        let explanation = 'Změňte "' + $(e).prev().text() + '" na "' + $(e).prev().text().slice(0, -1) + '" před "' + $(e).next().text() + '".'
+      }
     }
   });
 }
