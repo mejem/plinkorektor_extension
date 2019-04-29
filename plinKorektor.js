@@ -6,13 +6,13 @@ function escapeRegExp(text) {
 
 $.expr[':'].textEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      return $(elem).text().match("^" + arg + "$");
+      return $(elem).text().match("^" + escapeRegExp(arg) + "$");
     };
 });
 
 $.expr[':'].itextEquals = $.expr.createPseudo(function(arg) {
     return function( elem ) {
-      var re = new RegExp("^" + arg + "$", "gi");
+      var re = new RegExp("^" + escapeRegExp(arg) + "$", "gi");
       return $(elem).text().match(re);
     };
 });
@@ -266,8 +266,8 @@ function tritypo($lineOfText) {
     }
   });
   // WS_AFTER: Whitespace after [;?!]
-  $lineOfText.children(":contains(';'),:contains('?'),:contains('!')").each(function (i, e) {
-    if (!$(e).next().hasClass("pk-token-type-whitespace")) {
+  $lineOfText.children(":textEquals(';'),:textEquals('?'),:textEquals('!')").each(function (i, e) {
+    if ($(e).next().hasClass("pk-token-type-word")) {
       correct($(e), "Přidejte mezeru za '" + $(e).text() + "'", "typography");
     }
   });
